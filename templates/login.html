@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              500: '#3B82F6',
+              600: '#2563EB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+
+  <!-- Header with logos -->
+  <header>
+    <!-- Header with logos aligned like Figma -->
+<div class="w-full bg-white flex flex-wrap items-center justify-between px-4 py-3 shadow-md">
+
+  <!-- Left logo -->
+  <img src="{{ url_for('static', filename='logo1.png') }}" class="h-10 sm:h-12" />
+
+  <!-- Center logo (logo4) -->
+  <div class="flex-1 flex justify-center min-w-[100px] sm:min-w-[160px]">
+    <img src="{{ url_for('static', filename='logo4.png') }}" class="h-10 sm:h-12 object-contain" />
+  </div>
+
+  <!-- Right-side logos -->
+  <div class="flex items-center space-x-4 sm:space-x-6">
+    <img src="{{ url_for('static', filename='logo3.png') }}" class="h-10 sm:h-12" />
+    <img src="{{ url_for('static', filename='logo2.png') }}" class="h-10 sm:h-12" />
+  </div>
+</div>
+
+
+  </header>
+
+  <!-- Main background and form -->
+  <main class="flex-1 bg-cover bg-no-repeat bg-center" style="background-image: url('{{ url_for('static', filename='bg1.png') }}');">
+    <div class="flex justify-end items-center h-full px-12 py-20">
+      <div class="bg-white p-10 rounded-xl w-full max-w-md"
+        style="box-shadow:
+          0 0 60px 10px rgba(59,130,246,0.45),
+          0 0 0 4px rgba(59,130,246,0.10),
+          0 8px 32px 0 rgba(31,38,135,0.10);
+          border: 1.5px solid rgba(59,130,246,0.12);">
+
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Login</h2>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="mb-4 text-red-600 font-medium text-center">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/login" class="space-y-5">
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" id="email" required
+              class="w-full mt-1 px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="John Doe" />
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password" id="password" required
+              class="w-full mt-1 px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter your Password" />
+          </div>
+
+          <!-- Forgot Password -->
+          <div class="flex justify-end text-sm">
+            <a href="/forgot-password" class="text-red-500 hover:underline">Forgot Password</a>
+          </div>
+
+          <!-- Login Button -->
+          <button type="submit"
+            class="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md">
+            Login
+          </button>
+        </form>
+
+        <!-- Sign Up -->
+        <p class="text-sm text-gray-600 mt-6 text-center">
+          Don't have an account? <a href="/" class="text-blue-500 hover:underline">Sign up</a>
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

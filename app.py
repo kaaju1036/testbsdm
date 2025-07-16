@@ -130,6 +130,8 @@ def test():
     return render_template('quiz.html', questions=selected_questions, time_limit=3600)
 
 # Submit Test
+
+# POST-Redirect-GET for submit
 @app.route('/submit', methods=['POST'])
 def submit():
     email = session.get('email')
@@ -166,7 +168,37 @@ def submit():
     db.session.add(result)
     db.session.commit()
 
-    return render_template("result.html", score=score, role=role, correct=correct, total=len(questions))
+    # Store result in session for GET
+    session['last_result'] = {
+        'score': score,
+        'role': role,
+        'correct': correct,
+        'total': len(questions)
+    }
+    return redirect(url_for('show_result'))
+
+
+# GET result page (safe to refresh)
+@app.route('/result')
+def show_result():
+    result = session.get('last_result')
+    if not result:
+        flash('No result to display.')
+        return redirect(url_for('instructions'))
+    return render_template("result.html", **result)
+# Error Handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(405)
+def method_not_allowed_error(error):
+    return render_template('405.html'), 405
+
+@app.errorhandler(500)
+def internal_error(error):
+    # Optionally log error here
+    return render_template('500.html'), 500
 
 @app.route('/download-pdf')
 def download_pdf():
@@ -393,7 +425,3 @@ def resend_otp():
         return redirect(url_for('verify_otp'))
     
 
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)

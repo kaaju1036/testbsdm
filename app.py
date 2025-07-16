@@ -23,6 +23,10 @@ mail.init_app(app)
 
 # ========== ROUTES ==========
 
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
 @app.route('/')
 def home():
     return render_template('register.html')
@@ -391,6 +395,8 @@ def resend_otp():
     else:
         return redirect(url_for('verify_otp'))
     
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

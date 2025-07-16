@@ -1,11 +1,13 @@
 import os
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'SQLALCHEMY_DATABASE_URI',
-        'mssql+pyodbc://ASTRODBADMIN:Fr12345678dom!@10.0.0.4/BSDMDB?driver=ODBC+Driver+17+for+SQL+Server'
+        'DATABASE_URL',
+        'sqlite:///' + os.path.join(basedir, 'data.db')
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -17,7 +19,4 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'tcepksabkqhzxawb')
 
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@orbiqe.com')
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123#')  # Or better: use hashed password later
-
-
-
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123#')

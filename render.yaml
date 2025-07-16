@@ -3,9 +3,10 @@ services:
   - type: web
     name: flask-mcq-app
     env: python
-    pythonVersion: 3.11  # <-- Add this line
+    pythonVersion: 3.11.0  # <-- Add this line
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
+    startCommand: "gunicorn wsgi:application
+"
     envVars:
       - key: SECRET_KEY
         sync: false

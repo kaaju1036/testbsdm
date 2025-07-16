@@ -393,3 +393,7 @@ def resend_otp():
         return redirect(url_for('verify_otp'))
     
 
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)

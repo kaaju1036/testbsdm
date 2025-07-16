@@ -20,9 +20,6 @@ app.config.from_object(Config)
 
 db.init_app(app)
 mail.init_app(app)
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
 # ========== ROUTES ==========
 
@@ -393,3 +390,8 @@ def resend_otp():
         return redirect(url_for('reset_verify_otp'))
     else:
         return redirect(url_for('verify_otp'))
+    
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=False)

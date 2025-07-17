@@ -14,8 +14,7 @@
       background-position: center;
       font-family: 'Inter', sans-serif;
     }
-    .otp-input:focus,
-    .password-input:focus {
+    .otp-input:focus {
       box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
     }
     .error-message {
@@ -31,16 +30,12 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
+<!-- Header with logos -->
 <div class="w-full bg-white flex flex-wrap items-center justify-between px-4 py-3 shadow-md">
-  <!-- Left logo -->
   <img src="{{ url_for('static', filename='logo1.png') }}" class="h-10 sm:h-12" />
-
-  <!-- Center logo (logo4) -->
   <div class="flex-1 flex justify-center min-w-[100px] sm:min-w-[160px]">
     <img src="{{ url_for('static', filename='logo4.png') }}" class="h-10 sm:h-12 object-contain" />
   </div>
-
-  <!-- Right-side logos -->
   <div class="flex items-center space-x-4 sm:space-x-6">
     <img src="{{ url_for('static', filename='logo3.png') }}" class="h-10 sm:h-12" />
     <img src="{{ url_for('static', filename='logo2.png') }}" class="h-10 sm:h-12" />
@@ -50,13 +45,8 @@
 <!-- Main Content -->
 <div class="flex-grow flex justify-end items-center px-4 py-10">
   <div class="w-full max-w-md bg-white rounded-xl p-8 animate-fade-in mr-4"
-    style="
-      box-shadow:
-        0 0 60px 10px rgba(59,130,246,0.45),
-        0 0 0 4px rgba(59,130,246,0.10),
-        0 8px 32px 0 rgba(31,38,135,0.10);
-      border: 1.5px solid rgba(59,130,246,0.12);
-    ">
+    style="box-shadow: 0 0 60px 10px rgba(59,130,246,0.45), 0 0 0 4px rgba(59,130,246,0.10), 0 8px 32px 0 rgba(31,38,135,0.10); border: 1.5px solid rgba(59,130,246,0.12);">
+
     <h2 class="text-2xl font-semibold text-gray-800 mb-2">Verify Code</h2>
     <p class="text-sm text-gray-500 mb-6">An authentication code has been sent to your email.</p>
 
@@ -75,6 +65,7 @@
       {% endif %}
     {% endwith %}
 
+    <!-- OTP Form -->
     <form method="POST" class="space-y-5">
       <div>
         <label for="otp" class="block text-sm font-medium text-gray-700">Enter Code</label>
@@ -96,7 +87,7 @@
       </div>
 
       <script>
-        // Auto-focus and move to next box
+        // ✅ Restore: Auto-focus and move to next box
         document.addEventListener('DOMContentLoaded', function () {
           const inputs = document.querySelectorAll('#otp-group input');
           inputs.forEach((input, idx) => {
@@ -113,50 +104,7 @@
             });
           });
         });
-
-        const passwordInput = document.getElementById('password');
-        const passwordStrengthIndicator = document.getElementById('password-strength');
-
-        passwordInput.addEventListener('input', function() {
-          const password = this.value;
-          const strength = checkPasswordStrength(password);
-          passwordStrengthIndicator.textContent = strength.message;
-          passwordStrengthIndicator.className = `text-xs ${strength.className}`;
-        });
-
-        function checkPasswordStrength(password) {
-          const errors = [];
-          if (password.length < 8) {
-            errors.push('Minimum 8 characters required');
-          }
-          if (!/[a-zA-Z]/.test(password)) {
-            errors.push('At least one letter required');
-          }
-          if (!/[0-9]/.test(password)) {
-            errors.push('At least one number required');
-          }
-          if (!/[!@#$%^&*()_+=[\]{};':"\\|,.<>?]/.test(password)) {
-            errors.push('At least one special character required');
-          }
-
-          if (errors.length === 0) {
-            return { message: 'Strong password', className: 'text-green-500' };
-          } else {
-            return { message: errors.join(', '), className: 'text-red-500' };
-          }
-        }
       </script>
-
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">Create Password</label>
-        <input type="password" id="password" name="password" required
-          placeholder="Create a strong password"
-          pattern="(?=.*\d)(?=.*[!@#$%^&*()_+=[\]{};':&quot;\\|,.<>?]).{8,}"
-          title="Password must be at least 8 characters long, contain at least one number and one special character"
-          class="password-input mt-2 w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-green-500"/>
-        <p class="text-xs text-gray-500 mt-1">Minimum 8 characters with letters and numbers</p>
-        <div id="password-strength" class="text-xs text-gray-500 mt-1"></div>
-      </div>
 
       <div>
         <button type="submit"
@@ -167,7 +115,7 @@
     </form>
 
     <div class="mt-4 text-sm text-gray-600 text-center flex flex-col gap-2">
-      <a href="/login" class="text-blue-600 hover:underline">&larr; Back to login</a>
+      <a href="/" class="text-blue-600 hover:underline">&larr; Back to register</a>
       <form method="POST" action="/resend">
         <button type="submit" class="text-red-600 hover:underline font-medium">Resend OTP</button>
       </form>

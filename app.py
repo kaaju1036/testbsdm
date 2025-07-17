@@ -201,7 +201,7 @@ def submit():
     if not email:
         return redirect(url_for('login'))
 
-    cheated = request.form.get('cheated') == 'true'
+    # cheated = request.form.get('cheated') == 'true'
     submitted_answers = request.form
     questions = session.get('questions', [])
     
@@ -216,10 +216,10 @@ def submit():
     role = classify_role(score)
 
     # Force override if cheating
-    if cheated:
-        role = "Disqualified for Cheating"
-        score = 0
-        correct = 0
+    # if cheated:
+    #     role = "Disqualified for Cheating"
+    #     score = 0
+    #     correct = 0
 
     # Mark user as attempted
     user = User.query.filter_by(email=email).first()

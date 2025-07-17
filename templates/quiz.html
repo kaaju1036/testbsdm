@@ -64,7 +64,7 @@
   </div>
 
   <form id="quizForm" method="POST" action="/submit">
-    <input type="hidden" name="cheated" id="cheatedFlag" value="false">
+    <!-- <input type="hidden" name="cheated" id="cheatedFlag" value="false"> -->
     {% for q in questions %}
       <div class="question">
         <h4>Q{{ loop.index }}. {{ q.question }}</h4>
@@ -106,31 +106,31 @@
 
   form.addEventListener('submit', function () {
     submitting = true;
-    if (disqualified) {
-      cheatedField.value = "true";
-    }
+    //if (disqualified) {
+     // cheatedField.value = "true";
+   // }
   });
 
-  function handleCheating() {
-    if (!disqualified && !submitting) {
-      disqualified = true;
-      cheatedField.value = "true";
-      alert("Cheating detected! You switched tabs or apps. You are disqualified.");
-      form.submit();
-    }
-  }
+  // function handleCheating() {
+  //   if (!disqualified && !submitting) {
+  //     disqualified = true;
+  //     cheatedField.value = "true";
+  //     alert("Cheating detected! You switched tabs or apps. You are disqualified.");
+  //     form.submit();
+  //   }
+  // }
 
-  // Detect tab switch
-  document.addEventListener("visibilitychange", function () {
-    if (document.hidden) {
-      handleCheating();
-    }
-  });
+  // // Detect tab switch
+  // document.addEventListener("visibilitychange", function () {
+  //   if (document.hidden) {
+  //     handleCheating();
+  //   }
+  // });
 
-  // Detect app switch (losing window focus)
-  window.addEventListener("blur", function () {
-    handleCheating();
-  });
+  // // Detect app switch (losing window focus)
+  // window.addEventListener("blur", function () {
+  //   handleCheating();
+  // });
 
 
   window.addEventListener('pageshow', function (event) {

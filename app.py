@@ -23,15 +23,30 @@ mail.init_app(app)
 
 # ========== ROUTES ==========
 
-
 @app.route('/')
 def home():
     return render_template('register.html')
+
+from datetime import datetime, timedelta
 
 @app.route('/register', methods=['POST'])
 def register():
     name = request.form['name']
     email = request.form['email']
+    password = request.form.get('password')
+
+    # ✅ Check strong password
+    import re
+    def is_strong_password(pw):
+        return (
+            len(pw) >= 8 and
+            re.search(r'\d', pw) and
+            re.search(r'[!@#$%^&*()_+\-=\[\]{};\'":\\|,.<>\/?]', pw)
+        )
+
+    if not is_strong_password(password):
+        flash("Password must be at least 8 characters long and include at least one number and one special character.")
+        return redirect(url_for('home'))
 
     existing = User.query.filter_by(email=email).first()
     if existing:
@@ -39,46 +54,96 @@ def register():
         return redirect(url_for('login'))
 
     otp = generate_otp()
-    user = User(name=name, email=email, otp=otp)
-    db.session.add(user)
-    db.session.commit()
-    send_otp_email(email, otp)
+    session['temp_user'] = {
+        'name': name,
+        'email': email,
+        'password': generate_password_hash(password)
+    }
+    session['otp'] = otp
+    session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).timestamp()
     session['email'] = email
+
+    send_otp_email(email, otp)
     return redirect(url_for('verify_otp'))
 
 
-
-# OTP Verification and Password Set
 @app.route('/verify-otp', methods=['GET', 'POST'])
 def verify_otp():
     if request.method == 'POST':
         email = session.get('email')
         otp_input = ''.join([request.form.get(f'otp{i}', '') for i in range(6)])
-        password = request.form['password']
+        saved_otp = session.get('otp')
+        expiry = session.get('otp_expiry')
 
-        # ✅ Password strength check
-        import re
-        def is_strong_password(pw):
-            return (
-                len(pw) >= 8 and
-                re.search(r'\d', pw) and
-                re.search(r'[!@#$%^&*()_+\-=\[\]{};\'":\\|,.<>\/?]', pw)
-            )
+        if not email or not saved_otp or not expiry:
+            flash("Session expired. Please register again.")
+            return redirect(url_for('home'))
 
-        if not is_strong_password(password):
-            flash("Password must be at least 8 characters long and include at least one number and one special character.")
+        if datetime.now().timestamp() > expiry:
+            flash("OTP expired. Please click resend.")
             return redirect(url_for('verify_otp'))
 
-        user = User.query.filter_by(email=email).first()
-        if user and user.otp == otp_input:
-            user.set_password(password)
-            user.otp_verified = True
-            db.session.commit()
-            flash("OTP verified. Please login.")
-            return redirect(url_for('login'))
-        else:
+        if otp_input != saved_otp:
             flash("Invalid OTP.")
+            return redirect(url_for('verify_otp'))
+
+        # ✅ Save user to DB
+        temp_user = session.get('temp_user')
+        if not temp_user:
+            flash("Session expired. Please register again.")
+            return redirect(url_for('home'))
+
+        user = User(
+            name=temp_user['name'],
+            email=temp_user['email'],
+            password_hash=temp_user['password'],
+            otp_verified=True
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        # Cleanup session
+        session.pop('temp_user', None)
+        session.pop('otp', None)
+        session.pop('otp_expiry', None)
+        session.pop('email', None)
+
+        flash("Account created. Please login.")
+        return redirect(url_for('login'))
+
     return render_template('verify_otp.html')
+
+
+@app.route('/resend', methods=['POST'])
+def resend_otp():
+    # ✅ Priority check: are we verifying registration OTP?
+    if session.get('temp_user') and session.get('email'):
+        # Registration flow
+        email = session['email']
+        otp = generate_otp()
+        session['otp'] = otp
+        session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).timestamp()
+        send_otp_email(email, otp)
+        flash("New OTP sent to your email.")
+        return redirect(url_for('verify_otp'))
+
+    # ✅ Else, password reset flow
+    elif session.get('reset_email'):
+        email = session['reset_email']
+        user = User.query.filter_by(email=email).first()
+        otp = generate_otp()
+        if user:
+            user.otp = otp
+            db.session.commit()
+        session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).timestamp()
+        send_password_reset_otp(email, otp)
+        flash("New OTP sent to your email.")
+        return redirect(url_for('reset_verify_otp'))
+
+    flash("Session expired. Please start again.")
+    return redirect(url_for('home'))
+
+
 
 
 # Login
@@ -130,8 +195,6 @@ def test():
     return render_template('quiz.html', questions=selected_questions, time_limit=3600)
 
 # Submit Test
-
-# POST-Redirect-GET for submit
 @app.route('/submit', methods=['POST'])
 def submit():
     email = session.get('email')
@@ -168,37 +231,7 @@ def submit():
     db.session.add(result)
     db.session.commit()
 
-    # Store result in session for GET
-    session['last_result'] = {
-        'score': score,
-        'role': role,
-        'correct': correct,
-        'total': len(questions)
-    }
-    return redirect(url_for('show_result'))
-
-
-# GET result page (safe to refresh)
-@app.route('/result')
-def show_result():
-    result = session.get('last_result')
-    if not result:
-        flash('No result to display.')
-        return redirect(url_for('instructions'))
-    return render_template("result.html", **result)
-# Error Handlers
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
-
-@app.errorhandler(405)
-def method_not_allowed_error(error):
-    return render_template('405.html'), 405
-
-@app.errorhandler(500)
-def internal_error(error):
-    # Optionally log error here
-    return render_template('500.html'), 500
+    return render_template("result.html", score=score, role=role, correct=correct, total=len(questions))
 
 @app.route('/download-pdf')
 def download_pdf():
@@ -389,39 +422,24 @@ def reset_verify_otp():
         otp_input = ''.join([request.form.get(f'otp{i}', '') for i in range(6)])
         user = User.query.filter_by(email=email).first()
 
-        if user and user.otp == otp_input:
-            session['otp_verified_for_reset'] = True
-            return redirect(url_for('reset_password'))
-        else:
+        if not user or not user.otp:
+            flash("Session expired or invalid. Please try again.")
+            return redirect(url_for('forgot_password'))
+
+        if otp_input != user.otp:
             flash("Invalid OTP. Please try again.")
-    
+            return redirect(url_for('reset_verify_otp'))
+
+        # ✅ OTP matched: Invalidate it immediately
+        session['otp_verified_for_reset'] = True
+        user.otp = None
+        db.session.commit()
+        return redirect(url_for('reset_password'))
+
     return render_template('reset_verify_otp.html')
 
 
-@app.route('/resend', methods=['POST'])
-def resend_otp():
-    email = session.get('email') or session.get('reset_email')
-    if not email:
-        flash("Session expired. Please start again.")
-        return redirect(url_for('register'))
-
-    user = User.query.filter_by(email=email).first()
-    if user:
-        otp = generate_otp()
-        user.otp = otp
-        db.session.commit()
-        # Use the correct function depending on context
-        if session.get('reset_email'):
-            send_password_reset_otp(email, otp)
-        else:
-            send_otp_email(email, otp)
-        flash("A new OTP has been sent to your email.")
-    else:
-        flash("User not found.")
-
-    if session.get('reset_email'):
-        return redirect(url_for('reset_verify_otp'))
-    else:
-        return redirect(url_for('verify_otp'))
-    
-
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)

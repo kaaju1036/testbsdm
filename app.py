@@ -17,6 +17,8 @@ import datetime
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.permanent_session_lifetime = timedelta(minutes=30)
+
 
 db.init_app(app)
 mail.init_app(app)

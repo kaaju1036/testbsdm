@@ -21,7 +21,8 @@ class Config:
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@orbiqe.com')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123#')
 
-    # Session settings (important for production HTTPS)
-    SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    # 🔐 SESSION FIXES
+    SESSION_COOKIE_SECURE = True       # Only send cookies via HTTPS
+    SESSION_COOKIE_HTTPONLY = True     # Prevent JS access to cookies
+    SESSION_COOKIE_SAMESITE = 'Lax'    # Cookie policy
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)

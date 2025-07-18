@@ -16,6 +16,12 @@ from io import BytesIO
 import datetime
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "your-fallback-secret")
+
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 app.config.from_object(Config)
 
 db.init_app(app)

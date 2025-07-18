@@ -360,7 +360,7 @@ def download_user_result(user_id):
             correct=result.correct,
             total=40,
             role=result.role,
-            timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M")
         )
 
         buffer = BytesIO()

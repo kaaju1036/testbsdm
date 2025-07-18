@@ -26,4 +26,4 @@ class Config:
     SESSION_COOKIE_SECURE = True       # Only send cookies via HTTPS
     SESSION_COOKIE_HTTPONLY = True     # Prevent JS access to cookies
     SESSION_COOKIE_SAMESITE = 'Lax'    # Cookie policy
-    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1, minutes=20)

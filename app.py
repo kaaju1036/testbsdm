@@ -17,7 +17,7 @@ import datetime
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.permanent_session_lifetime = timedelta(minutes=30)
+app.permanent_session_lifetime = timedelta(hours=1 ,minutes=20)
 
 
 db.init_app(app)

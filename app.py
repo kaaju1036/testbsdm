@@ -62,6 +62,7 @@ def register():
         return redirect(url_for('login'))
 
     otp = generate_otp()
+    session.permanent = True
     session['temp_user'] = {
         'name': name,
         'email': email,
@@ -129,6 +130,7 @@ def resend_otp():
         # Registration flow
         email = session['email']
         otp = generate_otp()
+        session.permanent = True
         session['otp'] = otp
         session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).timestamp()
         send_otp_email(email, otp)
@@ -143,6 +145,7 @@ def resend_otp():
         if user:
             user.otp = otp
             db.session.commit()
+        session.permanent = True
         session['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).timestamp()
         send_password_reset_otp(email, otp)
         flash("New OTP sent to your email.")
@@ -378,6 +381,7 @@ def forgot_password():
         user.otp = otp
         db.session.commit()
         send_password_reset_otp(email, otp)
+        session.permanent = True
         session['reset_email'] = email
 
         flash("An OTP has been sent to your registered email.")

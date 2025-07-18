@@ -344,29 +344,37 @@ def download_user_result(user_id):
         return redirect(url_for('admin_login'))
 
     user = User.query.get(user_id)
+    if not user:
+        flash("User not found.")
+        return redirect(url_for('admin_dashboard'))
+
     result = Result.query.filter_by(email=user.email).order_by(Result.id.desc()).first()
-
     if not result:
-        return "Result not found"
+        flash("This user has not attempted the test yet.")
+        return redirect(url_for('admin_dashboard'))
 
-    html = render_template("result_pdf.html",
-        email=user.email,
-        score=result.score,
-        correct=result.correct,
-        # correct=int(result.score * 40 / 100),
-        total=40,
-        role=result.role,
-        timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    )
+    try:
+        html = render_template("result_pdf.html",
+            email=user.email,
+            score=result.score,
+            correct=result.correct,
+            total=40,
+            role=result.role,
+            timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        )
 
-    buffer = BytesIO()
-    pisa.CreatePDF(html, dest=buffer)
-    buffer.seek(0)
+        buffer = BytesIO()
+        pisa.CreatePDF(html, dest=buffer)
+        buffer.seek(0)
 
-    response = make_response(buffer.read())
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename={user.email}_result.pdf'
-    return response
+        response = make_response(buffer.read())
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename={user.email}_result.pdf'
+        return response
+
+    except Exception as e:
+        return f"PDF generation failed: {str(e)}"
+
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():

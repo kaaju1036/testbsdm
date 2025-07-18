@@ -32,7 +32,13 @@ from datetime import datetime, timedelta
 @app.route('/register', methods=['POST'])
 def register():
     name = request.form['name']
-    email = request.form['email']
+    email = request.form['email'].strip()
+    import re
+    EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(EMAIL_REGEX, email):
+        flash("Please enter a valid email address.")
+        return redirect(url_for('home'))
+
     password = request.form.get('password')
 
     # ✅ Check strong password
@@ -156,7 +162,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.otp_verified and user.check_password(password):
             if user.attempted:
-                return render_template("already_attempted.html")
+                return render_template("result.html")
             session['email'] = email
             return redirect(url_for('instructions'))
         else:
@@ -181,7 +187,7 @@ def test():
     user = User.query.filter_by(email=email).first()
     if user and user.attempted:
         flash('You have already attempted the test.')
-        return render_template('already_attempted.html')
+        return render_template('result.html')
 
     # ✅ Generate fresh questions
     all_questions = load_questions_from_excel()
@@ -248,7 +254,7 @@ def download_pdf():
         # correct=int(result.score * 40 / 100),
         total=40,
         role=result.role,
-        timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M")
     )
 
     buffer = BytesIO()
@@ -360,17 +366,22 @@ def download_user_result(user_id):
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.form['email'].strip()
         user = User.query.filter_by(email=email).first()
-        if user:
-            otp = generate_otp()
-            user.otp = otp
-            db.session.commit()
-            send_password_reset_otp(email, otp)  # <-- use the new function here
-            session['reset_email'] = email
-        flash("If this email is registered, you'll receive an OTP.")
+        if not user:
+            flash("No account exists with this email. Please register first.")
+            return redirect(url_for('forgot_password'))
+
+        otp = generate_otp()
+        user.otp = otp
+        db.session.commit()
+        send_password_reset_otp(email, otp)
+        session['reset_email'] = email
+
+        flash("An OTP has been sent to your registered email.")
         return redirect(url_for('reset_verify_otp'))
     return render_template('forgot_password.html')
+
 
 
 @app.route('/reset-password', methods=['GET', 'POST'])
@@ -437,6 +448,11 @@ def reset_verify_otp():
         return redirect(url_for('reset_password'))
 
     return render_template('reset_verify_otp.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 
 
 if __name__ == '__main__':

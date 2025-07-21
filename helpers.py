@@ -4,6 +4,25 @@ import os
 from extensions import mail
 from flask_mail import Message
 from flask import current_app
+from extensions import db
+from models import User
+
+def restore_attempted_users(filepath='results.xlsx'):
+    df = pd.read_excel(filepath)
+    for _, row in df.iterrows():
+        email = row['email'].strip().lower()
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            user.attempted = True
+        else:
+            user = User(
+                email=email,
+                attempted=True,
+                otp_verified=True
+            )
+            db.session.add(user)
+    db.session.commit()
 
 def send_otp_email(email, otp):
     msg = Message(

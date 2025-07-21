@@ -467,6 +467,18 @@ def reset_verify_otp():
 def page_not_found(e):
     return render_template('404.html'), 404
 
+@app.route('/upload_results', methods=['GET', 'POST'])
+def upload_results():
+    if request.method == 'POST':
+        file = request.files['results_file']
+        if file and file.filename.endswith('.xlsx'):
+            filepath = os.path.join('uploads', file.filename)
+            file.save(filepath)
+            restore_attempted_users(filepath)
+            flash("Users marked as attempted based on uploaded Excel.", "success")
+        else:
+            flash("Invalid file. Please upload a .xlsx file.", "danger")
+    return render_template('upload_results.html')
 
 
 if __name__ == '__main__':

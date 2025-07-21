@@ -1,0 +1,35 @@
+<!-- templates/instructions.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instructions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-lg rounded-xl p-8 max-w-xl w-full text-center">
+    <h1 class="text-2xl font-bold text-blue-700 mb-4">📝 Exam Instructions</h1>
+    <ul class="text-left text-gray-700 mb-6 list-disc list-inside">
+      <li>40 multiple-choice questions.</li>
+      <li>Time limit: 60 minutes.</li>
+      <li>Do not switch tabs or try to cheat.</li>
+      <li>If you cheat, you will be <strong>immediately disqualified</strong>.</li>
+      <li>Ensure a stable internet connection.</li>
+      <li>Use a desktop or laptop for the best experience.</li>
+      <li>Do not refresh the page or use the back button.</li>
+      <li>Each question carries 1 mark.</li>
+      <li>Each question has 4 options.</li>
+      <li>Test will auto-submit after 60 minutes.</li>
+      <li>If any doubt contact Invigilator at <strong>📞 9211842221 / 9211842121</strong>.</li>
+      <li>Click the "Start Test" button to begin.</li>
+      <p><center><strong>Good luck!</strong></center></p>
+    </ul>
+    <form action="/test" method="get">
+      <button type="submit" class="bg-green-600 text-white py-2 px-6 rounded hover:bg-green-700 transition">
+        Start Test
+      </button>
+    </form>
+  </div>
+</body>
+</html>

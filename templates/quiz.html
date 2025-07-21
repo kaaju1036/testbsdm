@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <title>MCQ Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+    .timer {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      font-size: 20px;
+      color: red;
+      background: #ffecec;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .question {
+      margin-bottom: 25px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .question h4 {
+      margin: 0 0 10px;
+    }
+    .question label {
+      display: block;
+      margin-bottom: 6px;
+    }
+    button {
+      padding: 10px 25px;
+      font-size: 16px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h2>MCQ Test (40 Questions)</h2>
+  <div class="timer" id="timer">Loading timer...</div>
+
+   <div style="background: #fff3cd; padding: 15px; margin-bottom: 25px; border-left: 5px solid #ffecb5;">
+    <strong>Instructions:</strong>
+    <ul>
+      <li>You have 60 minutes to complete the test.</li>
+      <li>If you switch tabs even once, you will be <strong>immediately disqualified</strong>.</li>
+      <li>After 60 minutes, your test will be auto-submitted.</li>
+      <li>Do not refresh the page or use the back button.</li>
+      <li>All The Best.</li>
+    </ul>
+  </div>
+
+  <form id="quizForm" method="POST" action="/submit">
+    <!-- <input type="hidden" name="cheated" id="cheatedFlag" value="false"> -->
+    {% for q in questions %}
+      <div class="question">
+        <h4>Q{{ loop.index }}. {{ q.question }}</h4>
+        {% set question_name = 'q' ~ loop.index0 %}
+        {% for key, value in q.options.items() %}
+          <label>
+            <input type="radio" name="{{ question_name }}" value="{{ key }}">
+            {{ key.upper() }}) {{ value }}
+          </label>
+        {% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit">Submit</button>
+  </form>
+
+<script>
+  let timeLeft = parseInt("{{ time_limit }}", 10);
+  const timer = document.getElementById('timer');
+  const form = document.getElementById('quizForm');
+  const cheatedField = document.getElementById("cheatedFlag");
+
+  let disqualified = false;
+  let submitting = false;
+
+  function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timer.textContent = `Time Left: ${minutes}m ${seconds}s`;
+    if (timeLeft <= 0 && !submitting) {
+      submitting = true;
+      alert("Time's up! Submitting your answers...");
+      form.submit();
+    }
+    timeLeft--;
+  }
+
+  const timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+
+  form.addEventListener('submit', function () {
+    submitting = true;
+    //if (disqualified) {
+     // cheatedField.value = "true";
+   // }
+  });
+
+  // function handleCheating() {
+  //   if (!disqualified && !submitting) {
+  //     disqualified = true;
+  //     cheatedField.value = "true";
+  //     alert("Cheating detected! You switched tabs or apps. You are disqualified.");
+  //     form.submit();
+  //   }
+  // }
+
+  // // Detect tab switch
+  // document.addEventListener("visibilitychange", function () {
+  //   if (document.hidden) {
+  //     handleCheating();
+  //   }
+  // });
+
+  // // Detect app switch (losing window focus)
+  // window.addEventListener("blur", function () {
+  //   handleCheating();
+  // });
+
+
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      // If user is returning via back/forward cache, force reload
+      window.location.reload();
+    }
+    });
+
+
+  // Prevent back navigation to test page after submission
+  if (window.history && window.history.pushState) {
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+      alert("You have already submitted the test. You cannot go back.");
+      window.history.pushState(null, null, window.location.href);
+    };
+  }
+</script>
+
+</body>
+</html>

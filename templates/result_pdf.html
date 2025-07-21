@@ -1,0 +1,26 @@
+<!-- templates/result_pdf.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Result PDF</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; }
+    h2 { text-align: center; }
+    .info { margin-top: 30px; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <h2>Your MCQ Test Result</h2>
+
+  <div class="info">
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Score:</strong> {{ score }}%</p>
+    <p><strong>Correct:</strong> {{ correct }} / {{ total }}</p>
+    <p><strong>Role Eligible For:</strong> {{ role }}</p>
+  </div>
+
+  <p style="margin-top: 50px;">Generated on: {{ timestamp }}</p>
+</body>
+</html>

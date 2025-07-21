@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify OTP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background-image: url('/static/bg1.png');
+      background-size: cover;
+      background-position: center;
+      font-family: 'Inter', sans-serif;
+    }
+    .otp-input:focus {
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+    }
+    .error-message {
+      animation: shake 0.4s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<div class="w-full bg-white flex flex-wrap items-center justify-between px-4 py-3 shadow-md">
+
+  <!-- Left logo -->
+  <img src="{{ url_for('static', filename='logo1.png') }}" class="h-10 sm:h-12" />
+
+  <!-- Center logo (logo4) -->
+  <div class="flex-1 flex justify-center min-w-[100px] sm:min-w-[160px]">
+    <img src="{{ url_for('static', filename='logo4.png') }}" class="h-10 sm:h-12 object-contain" />
+  </div>
+
+  <!-- Right-side logos -->
+  <div class="flex items-center space-x-4 sm:space-x-6">
+    <img src="{{ url_for('static', filename='logo3.png') }}" class="h-10 sm:h-12" />
+    <img src="{{ url_for('static', filename='logo2.png') }}" class="h-10 sm:h-12" />
+  </div>
+</div>
+
+
+
+  <!-- Main Content -->
+  <div class="flex-grow flex justify-end items-center px-4 py-10">
+    <div class="w-full max-w-md bg-white rounded-xl p-8 animate-fade-in mr-4"
+      style="
+        box-shadow:
+          0 0 60px 10px rgba(59,130,246,0.45),
+          0 0 0 4px rgba(59,130,246,0.10),
+          0 8px 32px 0 rgba(31,38,135,0.10);
+        border: 1.5px solid rgba(59,130,246,0.12);
+      ">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-2">Verify OTP</h2>
+      <p class="text-sm text-gray-500 mb-6">An authentication code has been sent to your email.</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="mb-4 error-message">
+            <ul class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded">
+              {% for message in messages %}
+                <li class="flex items-center">
+                  <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                  {{ message }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="/reset-verify-otp" class="space-y-5">
+        <div>
+          <label for="otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
+          <div id="otp-group" class="flex space-x-2 justify-center mt-2">
+            {% for i in range(6) %}
+            <input
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="1"
+              name="otp{{i}}"
+              id="otp{{i}}"
+              class="otp-input w-12 h-12 text-center text-xl border border-gray-300 rounded-lg bg-gray-100 focus:border-blue-500 focus:ring-blue-500"
+              autocomplete="off"
+              required
+            />
+            {% endfor %}
+          </div>
+        </div>
+
+        <script>
+          // Auto-focus and move to next box
+          document.addEventListener('DOMContentLoaded', function () {
+            const inputs = document.querySelectorAll('#otp-group input');
+            inputs.forEach((input, idx) => {
+              input.addEventListener('input', function (e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value && idx < inputs.length - 1) {
+                  inputs[idx + 1].focus();
+                }
+              });
+              input.addEventListener('keydown', function (e) {
+                if (e.key === 'Backspace' && !this.value && idx > 0) {
+                  inputs[idx - 1].focus();
+                }
+              });
+            });
+          });
+        </script>
+
+        <button 
+          type="submit"
+          class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 active:scale-95"
+        >
+          Verify OTP
+        </button>
+      </form>
+
+      <div class="mt-4 text-sm text-gray-600 text-center flex flex-col gap-2">
+        <a href="/login" class="text-blue-600 hover:underline">&larr; Back to login</a>
+        <form method="POST" action="/resend">
+          <button type="submit" class="text-red-600 hover:underline font-medium">Resend OTP</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

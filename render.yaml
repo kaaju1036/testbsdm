@@ -1,0 +1,28 @@
+# Render.com Blueprint for Flask App
+services:
+  - type: web
+    name: flask-mcq-app
+    env: python
+    pythonVersion: 3.11.0  # <-- Add this line
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn wsgi:application
+"
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: SQLALCHEMY_DATABASE_URI
+        sync: false
+      - key: MAIL_SERVER
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USE_TLS
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+  function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    const isHidden = input.type === 'password';
+
+    input.type = isHidden ? 'text' : 'password';
+    icon.innerHTML = isHidden
+      ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M13.875 18.825A9.956 9.956 0 0112 19c-5.523 0-10-4.477-10-10 0-1.886.52-3.65 1.425-5.175M3 3l18 18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>`
+      : `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+  }
+</script>
+<style>
+  input::-ms-reveal {
+  display: none;
+}
+</style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              500: '#3B82F6',
+              600: '#2563EB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+
+  <!-- Header with logos -->
+  <header>
+    <!-- Header with logos aligned like Figma -->
+<div class="w-full bg-white flex flex-wrap items-center justify-between px-4 py-3 shadow-md">
+
+  <!-- Left logo -->
+  <img src="{{ url_for('static', filename='logo1.png') }}" class="h-10 sm:h-12" />
+
+  <!-- Center logo (logo4) -->
+  <div class="flex-1 flex justify-center min-w-[100px] sm:min-w-[160px]">
+    <img src="{{ url_for('static', filename='logo4.png') }}" class="h-10 sm:h-12 object-contain" />
+  </div>
+
+  <!-- Right-side logos -->
+  <div class="flex items-center space-x-4 sm:space-x-6">
+    <img src="{{ url_for('static', filename='logo3.png') }}" class="h-10 sm:h-12" />
+    <img src="{{ url_for('static', filename='logo2.png') }}" class="h-10 sm:h-12" />
+  </div>
+</div>
+
+
+  </header>
+
+  <!-- Main background and form -->
+  <main class="flex-1 bg-cover bg-no-repeat bg-center" style="background-image: url('{{ url_for('static', filename='bg1.png') }}');">
+    <div class="flex justify-end items-center h-full px-12 py-20">
+      <div class="bg-white p-10 rounded-xl w-full max-w-md"
+        style="box-shadow:
+          0 0 60px 10px rgba(59,130,246,0.45),
+          0 0 0 4px rgba(59,130,246,0.10),
+          0 8px 32px 0 rgba(31,38,135,0.10);
+          border: 1.5px solid rgba(59,130,246,0.12);">
+
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Login</h2>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="mb-4 text-red-600 font-medium text-center">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/login" class="space-y-5">
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" id="email" required
+              class="w-full mt-1 px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter your registerd email" />
+          </div>
+
+          <!-- Password -->
+          <div class="relative">
+  <input
+    type="password"
+    name="password"
+    id="password"
+    required
+    class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+    placeholder="Enter your password"
+  />
+  <button
+    type="button"
+    onclick="togglePasswordVisibility('password', 'toggleIcon')"
+    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 focus:outline-none"
+    tabindex="-1"
+  >
+    <span id="toggleIcon">
+      <!-- Eye icon (visible by default) -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor">
+        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943
+                 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+      </svg>
+    </span>
+  </button>
+</div>
+
+
+
+          <!-- Forgot Password -->
+          <div class="flex justify-end text-sm">
+            <a href="/forgot-password" class="text-red-500 hover:underline">Forgot Password</a>
+          </div>
+
+          <!-- Login Button -->
+          <button type="submit"
+            class="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md">
+            Login
+          </button>
+        </form>
+
+        <!-- Sign Up -->
+        <p class="text-sm text-gray-600 mt-6 text-center">
+          Don't have an account? <a href="/" class="text-blue-500 hover:underline">Sign up</a>
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

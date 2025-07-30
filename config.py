@@ -17,7 +17,7 @@ class Config:
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'support@orbiqetechnologies.com')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'tcepksabkqhzxawb')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'dribwsssscjxvryd')
 
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@orbiqe.com')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123#')
